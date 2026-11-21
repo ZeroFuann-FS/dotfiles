@@ -1,75 +1,24 @@
 <div align="center">
 
-<img src="img/z-trazo.gif" width="120" alt="Logo Z animado">
+<img src="img/z-trazo.gif" width="110" alt="Logo Z animado">
 
-# dotfiles · Terminal Carbon
+# Terminal Carbon
 
-**Mi terminal en Fedora + KDE Plasma: kitty en grises, herramientas modernas y scripts propios para trabajar y para lucirse.**
+**Mi terminal en Fedora + KDE Plasma: kitty en escala de grises, herramientas modernas<br>y scripts propios en Python para trabajar y para lucirse.**
 
-kitty · bash · starship · fastfetch · Python
+![Fedora](https://img.shields.io/badge/Fedora-45-1e1e20?style=flat-square&logo=fedora&logoColor=e6e6e8)
+![KDE Plasma](https://img.shields.io/badge/KDE_Plasma-6-1e1e20?style=flat-square&logo=kde&logoColor=e6e6e8)
+![kitty](https://img.shields.io/badge/kitty-terminal-1e1e20?style=flat-square&logo=gnometerminal&logoColor=e6e6e8)
+![Python](https://img.shields.io/badge/Python-3-1e1e20?style=flat-square&logo=python&logoColor=e6e6e8)
+![Licencia MIT](https://img.shields.io/badge/licencia-MIT-1e1e20?style=flat-square)
+
+[Instalar](#instalar) · [Para trabajar](#para-trabajar) · [Para lucirse](#para-lucirse) · [Personalizar](#personalizar) · [Estructura](#estructura)
+
+<br>
+
+<img src="img/abrir.jpg" width="820" alt="Al abrir kitty: fastfetch con el logo Z y la información del equipo">
 
 </div>
-
-<p align="center"><img src="img/abrir.jpg" width="720" alt="Al abrir kitty: fastfetch con el logo Z y la información del equipo"></p>
-
-## Qué trae
-
-Todo sigue el mismo estilo **Carbon**: fondo casi negro, texto en escala de grises, sin colores chillones. Los scripts de `bin/` los escribí yo en Python, sin dependencias raras (solo `personaje` usa Pillow).
-
-### Para trabajar
-
-| Comando | Qué hace |
-|---|---|
-| prompt | starship estilo árbol: usuario, carpeta, rama de git, versión de Node, duración y hora |
-| `ls` · `ll` · `la` · `lt` | eza en gris con líneas de árbol, git y fechas relativas |
-| `z brio` · `zi` | zoxide: salta a la carpeta más usada que coincida |
-| Ctrl+R · Ctrl+T · Alt+C | fzf: historial, archivos y carpetas con vista previa (bat / eza) |
-| `top` | btop con tema Carbon |
-| `gg` | lazygit; fuera de un repo te deja elegir proyecto con fzf |
-| `y` | yazi; al salir te deja en la carpeta donde ibas |
-| Meta+Enter | kitty que baja desde arriba (quick-access-terminal) |
-| Ctrl+Shift+D / B | dividir a la derecha / abajo; Alt+flechas para moverte |
-| aviso | notificación de KDE cuando un comando de más de 15 s acaba y estás en otra ventana |
-| `musica` | spotify_player con tema Carbon |
-| `clima` | pronóstico de wttr.in en ASCII, pasado a grises (`clima hoy`, `clima corto`, `clima luna`) |
-| `reloj` | hora gigante, `reloj crono` y `reloj 25m` (temporizador con notificación y sonido) |
-| `frase` | frase del día al abrir kitty (código, motivación, MCU, manga, Barça…) |
-
-<p align="center">
-<img src="img/prompt.jpg" width="49%" alt="Prompt de starship estilo árbol">
-<img src="img/fzf.jpg" width="49%" alt="fzf buscando archivos con vista previa">
-</p>
-<p align="center">
-<img src="img/reloj.jpg" width="49%" alt="Reloj gigante y temporizador">
-<img src="img/frase.jpg" width="49%" alt="Frase del día debajo de fastfetch">
-</p>
-
-### Para lucirse
-
-| Comando | Qué hace |
-|---|---|
-| `apurale <comando>` | Un látigo en braille con física y sonido que da latigazos mientras corre tu comando; al final te dice cuánto tardó |
-| `ondas` | cava: barras que bailan con lo que suene |
-| `lluvia` | Lluvia tipo Matrix en grises, con mensajes escondidos (`lluvia -z`) |
-| `acuario` | Acuario propio: peces, burbujas, algas, castillo, barco y un tiburón que se come peces |
-| `fuego` | Fogata animada en gris o a colores (`fuego -c`) |
-| `poke` | Pokémon con [pokeget](https://github.com/talwat/pokeget-rs): a colores, en gris y el juego `poke quien` |
-| `personaje` | Cualquier imagen tuya de `~/Imágenes/terminal/` en pixel art, en gris o real; incluye `personaje quien` |
-
-<p align="center">
-<img src="img/apurale.jpg" width="49%" alt="El látigo de apurale en tres cuadros">
-<img src="img/lluvia.jpg" width="49%" alt="Lluvia Matrix en grises">
-</p>
-<p align="center">
-<img src="img/acuario.jpg" width="49%" alt="Acuario con barco, peces y tiburón">
-<img src="img/fuego.jpg" width="49%" alt="Fogata en gris y a colores">
-</p>
-<p align="center">
-<img src="img/cava.jpg" width="49%" alt="Barras de cava en grises">
-<img src="img/personaje.jpg" width="49%" alt="Un muñeco de prueba en pixel art, en gris y real">
-</p>
-
-Todos los scripts traen ayuda: `apurale -h`, `reloj -h`, `personaje -h`…
 
 ## Instalar
 
@@ -79,31 +28,107 @@ cd dotfiles
 ./instalar.sh
 ```
 
-- Copia todo a su lugar (`~/.config`, `~/.local/bin`, `~/.bashrc.d`) y **respalda** lo que ya tengas como `*.antes-dotfiles`.
-- No usa `sudo`: al final te dice qué programas te faltan y el comando para instalarlos.
-- Tus datos personales van en `~/.bashrc.d/00-privado.sh`, que no forma parte del repo:
+1. Copia todo a su lugar: `~/.config`, `~/.local/bin` y `~/.bashrc.d`.
+2. Lo que ya tengas lo **respalda** como `archivo.antes-dotfiles` antes de reemplazarlo.
+3. No usa `sudo`: al final te dice qué programas te faltan y el comando para instalarlos.
+4. Abre una kitty nueva y listo.
+
+> **Requisitos:** kitty reciente, la fuente JetBrains Mono, Python 3 y PipeWire (`pw-play`) para los sonidos. Probado en Fedora 45 con KDE Plasma 6.
+
+## Para trabajar
+
+| Comando | Qué hace |
+|---|---|
+| **prompt** | starship estilo árbol: usuario, carpeta, rama de git, Node, duración y hora |
+| `ls` · `ll` · `la` · `lt` | eza en gris con líneas de árbol, estado de git y fechas relativas |
+| `z <algo>` · `zi` | zoxide: salta a la carpeta más usada que coincida |
+| `Ctrl+R` · `Ctrl+T` · `Alt+C` | fzf: historial, archivos y carpetas con vista previa |
+| `top` | btop con tema Carbon |
+| `gg` | lazygit; fuera de un repo eliges el proyecto con fzf |
+| `y` | yazi; al salir te deja en la carpeta donde ibas |
+| `Meta+Enter` | kitty que baja desde arriba de la pantalla |
+| `Ctrl+Shift+D` · `Ctrl+Shift+B` | dividir a la derecha o abajo; `Alt+flechas` para moverte |
+| *automático* | notificación de KDE cuando un comando de más de 15 s acaba y estás en otra ventana |
+| `musica` | Spotify en la terminal (spotify_player, necesita Premium) |
+| `clima` | pronóstico de wttr.in en ASCII pasado a grises · `clima hoy` · `clima corto` · `clima luna` |
+| `reloj` | hora gigante · `reloj crono` · `reloj 25m` temporizador con aviso y sonido |
+| `frase` | frase del día al abrir kitty · `frase otra` · `frase barca` · `frase + "tuya"` |
+
+<table>
+  <tr>
+    <td width="50%"><img src="img/prompt.jpg" alt="Prompt de starship estilo árbol"></td>
+    <td width="50%"><img src="img/fzf.jpg" alt="fzf buscando archivos con vista previa"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="img/ll.jpg" alt="ll con eza: árbol, tamaños y fechas"></td>
+    <td width="50%"><img src="img/reloj.jpg" alt="Reloj gigante y temporizador al terminar"></td>
+  </tr>
+</table>
+
+## Para lucirse
+
+| Comando | Qué hace |
+|---|---|
+| `apurale <comando>` | Un látigo en braille con física y sonido que da latigazos mientras corre tu comando; al final te dice cuánto tardó |
+| `lluvia` | Lluvia tipo Matrix en grises · `lluvia -z` con mensajes escondidos |
+| `acuario` | Peces, burbujas, algas, castillo, barco y un tiburón que se come peces · `Espacio` echa más |
+| `fuego` | Fogata animada en gris · `fuego -c` a colores · `←` `→` viento |
+| `ondas` | cava: barras que bailan con lo que suene |
+| `poke` | Pokémon con [pokeget](https://github.com/talwat/pokeget-rs) · `poke gris` · `poke quien` para adivinar |
+| `personaje` | Cualquier imagen tuya en pixel art, en gris o real · `personaje quien` para adivinar |
+
+<table>
+  <tr>
+    <td width="50%"><img src="img/apurale.jpg" alt="El látigo de apurale en tres cuadros"></td>
+    <td width="50%"><img src="img/lluvia.jpg" alt="Lluvia Matrix en grises"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="img/acuario.jpg" alt="Acuario con barco, peces y tiburón"></td>
+    <td width="50%"><img src="img/fuego.jpg" alt="Fogata en gris y a colores"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="img/cava.jpg" alt="Barras de cava en grises"></td>
+    <td width="50%"><img src="img/personaje.jpg" alt="Un muñeco de prueba en pixel art, en gris y como imagen real"></td>
+  </tr>
+</table>
+
+Todos los scripts traen ayuda: `apurale -h`, `reloj -h`, `personaje -h`…
+
+## Personalizar
+
+Tus datos personales van en `~/.bashrc.d/00-privado.sh`. El instalador lo crea vacío y no forma parte del repo:
 
 ```bash
 export CLIMA_CIUDAD="Tu ciudad"   # vacío = wttr.in la detecta por tu IP
-export MASCOTA="nombre"           # imagen de ~/Imágenes/terminal que sale chiquita al abrir kitty
+export MASCOTA="nombre"           # imagen que sale chiquita junto a la frase al abrir kitty
 ```
 
-**Requisitos:** kitty reciente (la terminal desplegable usa `kitten quick-access-terminal`), la fuente JetBrains Mono, Python 3 y, para el látigo, PipeWire (`pw-play`). Probado en Fedora 45 con KDE Plasma 6.
+- **Personajes:** pon tus imágenes en `~/Imágenes/terminal/` (subcarpetas `anime/`, `marvel/`, `otros/`…). El nombre del archivo es el del personaje: `mi-perro.png` sale como «Mi Perro».
+- **Frases:** edita `~/.local/share/frases/frases.txt` (una por línea: `tema|frase|autor`) o usa `frase + "texto — autor"`.
+- **Colores:** el tema vive en `kitty/carbon.conf`; los demás programas usan los mismos grises.
+
+<p align="center"><img src="img/frase.jpg" width="640" alt="Frase del día debajo de fastfetch"></p>
 
 ## Estructura
 
 ```
-bin/       scripts (apurale, lluvia, acuario, fuego, reloj, clima, frase, poke, personaje, zfetch…)
-bash/      alias y funciones (~/.bashrc.d)
-kitty/     kitty.conf, tema carbon.conf y la terminal desplegable
-config/    starship, fastfetch, btop, lazygit, yazi, cava, spotify_player
-share/     frases, sonido del látigo, lanzador de la terminal desplegable
+dotfiles/
+├── bin/        scripts: apurale, lluvia, acuario, fuego, reloj, clima, frase, poke, personaje, zfetch
+├── bash/       alias y funciones para ~/.bashrc.d
+├── kitty/      kitty.conf, tema carbon.conf y la terminal desplegable
+├── config/     starship, fastfetch, btop, lazygit, yazi, cava, spotify_player
+├── share/      frases, sonido del látigo y lanzador de la terminal desplegable
+└── instalar.sh
 ```
 
 ## Créditos
 
-Inspirado en proyectos como badclaude y OpenWhip (el látigo), cmatrix, asciiquarium y tty-clock. El código de `bin/` es propio. Los sprites de Pokémon los dibuja pokeget y no vienen en este repo.
+Ideas inspiradas en cmatrix, asciiquarium, tty-clock y en los "látigos para la terminal" (badclaude, OpenWhip). El código de `bin/` es propio. Los sprites de Pokémon los dibuja pokeget y no vienen en este repo.
 
-## Licencia
+<div align="center">
 
-[MIT](LICENSE) © ZeroFuann
+<br>
+
+[MIT](LICENSE) · hecho por **ZeroFuann**
+
+</div>
