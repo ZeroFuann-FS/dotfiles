@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""acuario — acuario animado en gris Carbon (idea #16 de "Mi terminal").
+
+  acuario          peces, burbujas, algas, castillo, tiburón y barco ZF
+  acuario -m       más peces
+  acuario -t       sin tiburón (nadie se come a nadie)
+
+  Espacio = echa más peces · cualquier otra tecla = salir.
+"""
+import os, random, select, shutil, sys, termios, time, tty
+
+ESPEJO = str.maketrans("()<>/\\[]{}`'db", ")(><\\/][}{'`bd")
+
+# Peces dibujados mirando a la izquierda (se voltean solos)
+PECES = [
+    ["<><"],
+    ["<°)))><"],
+    ["<'(((=<"],
+    [" __", "/o \\/", "\\__/\\"],
+    ["  ,__", " / o \\_/|", "<  ))  _|", " \\___/ \\|"],
+    ["   _.-'|", " ,'o  ((=<", "  `-._|"],
+]
+TIBURON = [
+    "          |\\",
+    "   _______|  \\_______    _",
+    "  / o                \\__/ |",
+    " <   vvvvvv              <",
+    "  \\___^^^^^^__________/\\__|",
+]
+BARCO = [
+    "     |\\",
+    "     | \\",
+    "     |  \\",
+    "  ___|___\\__",
+    "  \\  Z F   /",
+]
+CASTILLO = [
+    "       |>>",
+    "       |",
+    "  _   /^\\   _",
+    " |-| |___| |-|",
+    " | |_|[_]|_| |",
+    " |  _     _  |",
+    " | | |   | | |",
+    " |_|_|___|_|_|",
+]
+
+
+def gris(v):
+    v = max(40, min(253, int(v)))
+    return f"\x1b[38;2;{v};{v};{v + 2}m"
+
+
+def voltea(sprite):
+    w = max(len(l) for l in sprite)
+    return [l.ljust(w)[::-1].translate(ESPEJO) for l in sprite]
+
+
+class Cosa:
+    def __init__(self, sprite, x, y, vx, tono):
+        self.sprite, self.x, self.y, self.vx, self.tono = sprite, x, y, vx, tono
+        self.w = max(len(l) for l in sprite)
+        self.h = len(sprite)
+
+
+def nuevo_pez(cols, filas, al_inicio=False):
+    s = random.choice(PECES)
+    der = random.random() < 0.5
+    vx = random.uniform(0.25, 0.9) * (1 if der else -1)
+    if der:
+        s = voltea(s)
+    w = max(len(l) for l in s)
+    if al_inicio:
+        x = random.uniform(0, max(1, cols - w))
+    else:
+        x = -w if der else cols
+    y = random.randint(9, max(10, filas - 6 - len(s)))
+    return Cosa(s, x, y, vx, random.uniform(140, 240))
+
+
+def main():
+    args = sys.argv[1:]
+    if "-h" in args or "--help" in args:
+        print(__doc__.strip()); return
+    con_tiburon = "-t" not in args
+    extra = 2.0 if "-m" in args else 1.0
+
+    fd = sys.stdin.fileno()
+    viejo = termios.tcgetattr(fd)
+    out = sys.stdout
+    out.write("\x1b[?1049h\x1b[?25l\x1b[2J")
+    try:
+        tty.setcbreak(fd)
+        cols = filas = 0
+        peces = []
+        prueba = os.environ.get("ACUARIO_PRUEBA")   # fuerza tiburón y barco (para capturas)
+        t0 = time.monotonic()
+        while True:
+            if select.select([sys.stdin], [], [], 0)[0]:
+                k = os.read(fd, 64)
+                if k == b" ":
+                    for _ in range(4):
+                        peces.append(nuevo_pez(cols, filas))
+                else:
+                    break
+            c2, f2 = shutil.get_terminal_size()
+            if (c2, f2) != (cols, filas):                      # arranque o cambió el tamaño
+                cols, filas = c2, f2
+                out.write("\x1b[2J")
+                n_peces = int(max(3, cols * filas / 260) * extra)
+                peces = [nuevo_pez(cols, filas, True) for _ in range(n_peces)]
+                burbujas, tiburon, barco, mordidas = [], None, None, []
+                libres = [x for x in range(2, max(3, cols - 2)) if not (cols - 20 <= x <= cols - 4)]
+                algas = [(x, random.randint(3, max(4, filas // 3)), random.random() * 6)
+                         for x in random.sample(libres, k=min(len(libres), max(4, cols // 9)))]
+            t = time.monotonic() - t0
+            fondo = filas - 1
+            lienzo = [[" "] * cols for _ in range(filas)]
+            tonos = [[0] * cols for _ in range(filas)]
+
+            def pon(x, y, ch, tono):
+                x, y = int(x), int(y)
+                if 0 <= x < cols and 0 <= y < filas and ch != " ":
+                    lienzo[y][x], tonos[y][x] = ch, tono
+
+            def dibuja(c, opaco=True):
+                for dy, l in enumerate(c.sprite):
+                    izq = len(l) - len(l.lstrip())
+                    der = len(l.rstrip())
+                    for dx, ch in enumerate(l):
+                        if izq <= dx < der:
+                            x, y = int(c.x) + dx, int(c.y) + dy
+                            if 0 <= x < cols and 0 <= y < filas:
+                                lienzo[y][x], tonos[y][x] = ch, c.tono
+
+            # olas
+            for fy, (patron, tono) in enumerate((("~^~-~~^-~", 200), ("-~~^~-~^~", 150), ("~ ~  ~  ~", 95))):
+                desp = int(t * (3 + fy * 2)) * (1 if fy % 2 == 0 else -1)
+                for x in range(cols):
+                    pon(x, fy + 5, patron[(x + desp) % len(patron)], tono)
+            # arena
+            for x in range(cols):
+                pon(x, fondo, "._,.-._.,"[(x * 7) % 9], 110)
+            # algas que se mecen
+            for ax, alto, fase in algas:
+                for k in range(alto):
+                    lado = int((t * 1.6 + fase + k * 0.9)) % 2
+                    pon(ax + (lado if k % 2 else 0), fondo - 1 - k, "()"[(k + lado) % 2], 85 + k * 4)
+            # castillo
+            cx = cols - 18
+            if cx > cols // 2:
+                for dy, l in enumerate(CASTILLO):
+                    for dx, ch in enumerate(l):
+                        pon(cx + dx, fondo - len(CASTILLO) + dy, ch, 125)
+            # barco ZF de vez en cuando
+            if barco is None and (random.random() < 0.002 or (prueba and t < 0.2)):
+                d = random.random() < 0.5
+                s = BARCO                                    # sin voltear para que diga ZF
+                barco = Cosa(s, -14 if d else cols, 1, 0.25 if d else -0.25, 225)
+            if barco:
+                barco.x += barco.vx
+                dibuja(barco)
+                if barco.x > cols + 2 or barco.x < -16:
+                    barco = None
+            # peces
+            for p in list(peces):
+                p.x += p.vx
+                p.y += 0.04 * (1 if int(t * 0.5 + p.tono) % 2 else -1) if random.random() < 0.2 else 0
+                p.y = max(9, min(fondo - p.h - 1, p.y))
+                dibuja(p)
+                if random.random() < 0.012:                      # burbuja
+                    bx = p.x if p.vx < 0 else p.x + p.w
+                    burbujas.append([bx, p.y, random.choice(".oO")])
+                if p.x > cols + 2 or p.x < -p.w - 2:
+                    peces.remove(p)
+                    peces.append(nuevo_pez(cols, filas))
+            # tiburón
+            if con_tiburon and tiburon is None and (random.random() < 0.003 or (prueba and t > 1)):
+                d = random.random() < 0.5
+                s = voltea(TIBURON) if d else TIBURON
+                w = max(len(l) for l in s)
+                tiburon = Cosa(s, -w if d else cols, random.randint(9, max(10, fondo - 8)), 1.1 if d else -1.1, 210)
+            if tiburon:
+                tiburon.x += tiburon.vx
+                boca_x = tiburon.x + (tiburon.w - 2 if tiburon.vx > 0 else 1)
+                boca_y = tiburon.y + 3
+                for p in list(peces):                            # ñam
+                    if p.x - 1 <= boca_x <= p.x + p.w + 1 and p.y - 1 <= boca_y <= p.y + p.h:
+                        peces.remove(p)
+                        peces.append(nuevo_pez(cols, filas))
+                        mordidas.append([boca_x, boca_y - 1, t])
+                        for _ in range(5):
+                            burbujas.append([boca_x + random.uniform(-2, 2), boca_y, random.choice(".oO")])
+                dibuja(tiburon)
+                if tiburon.x > cols + 2 or tiburon.x < -tiburon.w - 2:
+                    tiburon = None
+            for m in list(mordidas):
+                if t - m[2] > 1.2:
+                    mordidas.remove(m); continue
+                for i, ch in enumerate("¡ñam!"):
+                    pon(m[0] - 2 + i, m[1] - 1, ch, 253)
+            # burbujas
+            for b in list(burbujas):
+                b[1] -= 0.35
+                b[0] += random.choice((-0.3, 0, 0, 0.3))
+                if b[1] < 8:
+                    burbujas.remove(b); continue
+                if b[1] < 13 and b[2] == "." and random.random() < 0.1:
+                    b[2] = "o"
+                pon(b[0], b[1], b[2], 205)
+
+            # a la pantalla
+            buf = ["\x1b[H"]
+            for fy in range(filas):
+                ult = -1
+                fila = []
+                for fx in range(cols):
+                    tn = tonos[fy][fx]
+                    if tn and tn != ult:
+                        fila.append(gris(tn)); ult = tn
+                    fila.append(lienzo[fy][fx])
+                buf.append("".join(fila))
+                if fy < filas - 1:
+                    buf.append("\r\n")
+            out.write("".join(buf) + "\x1b[0m")
+            out.flush()
+            time.sleep(1 / 15)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, viejo)
+        out.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+        out.flush()
+
+
+if __name__ == "__main__":
+    main()

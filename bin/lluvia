@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""lluvia — lluvia tipo Matrix en gris Carbon (idea #13 de "Mi terminal").
+
+  lluvia            katakana y números, como en la película
+  lluvia -l         solo letras y números (latín)
+  lluvia -b         solo 0 y 1 (binario)
+  lluvia -z         con mensajes escondidos que aparecen entre la lluvia
+
+  Cualquier tecla para salir.
+"""
+import os, random, select, shutil, sys, termios, time, tty
+
+KATA = "ｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜ" + "0123456789" + "Z:・.=*+-<>¦|"
+LATIN = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~"
+BIN = "01"
+MENSAJES = ["ZEROFUANN", "SIGUE AL CONEJO BLANCO", "WAKE UP", "BRIO", "NO HAY CUCHARA", "APURALE"]
+
+
+def color(v, negrita=False):
+    v = max(30, min(253, int(v)))
+    return f"\x1b[{'1;' if negrita else '22;'}38;2;{v};{v};{v + 2}m"
+
+
+class Gota:
+    def __init__(self, x, alto, inicio=False):
+        self.x = x
+        self.alto = alto
+        self.reinicia(inicio)
+
+    def reinicia(self, inicio=False):
+        self.y = random.uniform(-self.alto, 0) if inicio else random.uniform(-12, 0)
+        self.vel = random.uniform(0.35, 1.25)          # filas por cuadro
+        self.largo = random.randint(6, max(8, self.alto * 2 // 3))
+        self.letras = {}
+        self.texto = None
+
+
+def main():
+    args = sys.argv[1:]
+    if "-h" in args or "--help" in args:
+        print(__doc__.strip()); return
+    juego = BIN if "-b" in args else LATIN if "-l" in args else KATA
+    mensajes = "-z" in args
+
+    fd = sys.stdin.fileno()
+    viejo = termios.tcgetattr(fd)
+    out = sys.stdout
+    out.write("\x1b[?1049h\x1b[?25l\x1b[2J")          # pantalla aparte, sin cursor
+    try:
+        tty.setcbreak(fd)
+        cols, filas = shutil.get_terminal_size()
+        paso = 2 if juego is KATA else 1
+        gotas = [Gota(x * paso, filas, inicio=True) for x in range(cols // paso)]
+        while True:
+            if select.select([sys.stdin], [], [], 0)[0]:
+                os.read(fd, 64)
+                break
+            c2, f2 = shutil.get_terminal_size()
+            if (c2, f2) != (cols, filas):              # cambió el tamaño de la ventana
+                cols, filas = c2, f2
+                out.write("\x1b[2J")
+                gotas = [Gota(x * paso, filas, inicio=True) for x in range(cols // paso)]
+            buf = []
+            for g in gotas:
+                cabeza = int(g.y)
+                # borra la celda que queda detrás de la cola
+                fin = cabeza - g.largo
+                for fy in (fin - 2, fin - 1, fin):           # las gotas rápidas brincan filas
+                    if 0 <= fy < filas:
+                        buf.append(f"\x1b[{fy + 1};{g.x + 1}H ")
+                        g.letras.pop(fy, None)
+                for k in range(g.largo):
+                    fy = cabeza - k
+                    if not (0 <= fy < filas):
+                        continue
+                    if fy not in g.letras or random.random() < 0.04:
+                        g.letras[fy] = random.choice(juego)
+                    ch = g.letras[fy]
+                    if g.texto and fy in g.texto:
+                        ch = g.texto[fy]
+                    if k == 0:
+                        estilo = color(255, True)
+                    elif k == 1:
+                        estilo = color(215, True)
+                    else:
+                        p = k / g.largo
+                        estilo = color(175 - 140 * p ** 0.8)
+                    buf.append(f"\x1b[{fy + 1};{g.x + 1}H{estilo}{ch}")
+                g.y += g.vel
+                if cabeza - g.largo > filas:
+                    g.reinicia()
+                    if mensajes and random.random() < 0.05:
+                        m = random.choice(MENSAJES)
+                        base = random.randint(1, max(2, filas - len(m) - 1))
+                        g.texto = {base + i: c for i, c in enumerate(m)}
+                        g.largo = max(g.largo, filas)
+            out.write("".join(buf) + "\x1b[0m")
+            out.flush()
+            time.sleep(1 / 24)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, viejo)
+        out.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+        out.flush()
+
+
+if __name__ == "__main__":
+    main()

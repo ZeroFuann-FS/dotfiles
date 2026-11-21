@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# fastfetch con el logo Z animado (GIF de trazo).
+# En kitty: la Z se dibuja desde el inicio y el texto aparece línea por línea al mismo tiempo.
+# En otra terminal: fastfetch normal con la Z fija.
+F="$HOME/.config/fastfetch"
+ESPERA=0.45     # lo que espera antes de empezar (igual que el GIF)
+PASO=0.085      # tiempo entre líneas: más alto = más lento
+if [ "$TERM" = "xterm-kitty" ] && command -v kitten >/dev/null; then
+  salida=$(fastfetch -c "$F/zerofuann.jsonc" --pipe false 2>/dev/null)   # se prepara antes de mostrar nada
+  printf '\033[?25l'; clear                                               # oculta el cursor
+  kitten icat --stdin=no --place 24x12@3x3 "$F/z-trazo.gif" 2>/dev/null   # la Z arranca ya (kitty la anima solo)
+  printf '\033[H'                                                        # cursor a la esquina de arriba
+  sleep "$ESPERA"
+  while IFS= read -r linea; do
+    printf '%s\n' "$linea"; sleep "$PASO"                                 # ~2 s, lo mismo que tarda el trazo
+  done <<< "$salida"
+  printf '\033[?25h'                                                      # regresa el cursor
+else
+  fastfetch -c "$F/config.jsonc" "$@"
+fi

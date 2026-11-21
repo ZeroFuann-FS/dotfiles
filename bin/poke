@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""poke — Pokémon en la terminal con pokeget (idea #20 de "Mi terminal").
+
+  poke                 uno al azar, a colores
+  poke charizard       el que tú digas (nombre en inglés: bulbasaur, mewtwo…)
+  poke kanto           uno al azar de una región (kanto, johto, hoenn, sinnoh…)
+  poke gris            al azar en gris Carbon (se combina: poke gris gengar)
+  poke quien           ¿Quién es ese Pokémon? — adivina por la silueta
+  poke -s pikachu      shiny · también -m mega, -g gigamax, -a alola, --galar, --hisui
+"""
+import re, subprocess, sys
+
+ANSI = re.compile(r"(38|48);2;(\d+);(\d+);(\d+)")
+
+
+def pokeget(args):
+    r = subprocess.run(["pokeget", *args], capture_output=True, text=True, stdin=subprocess.DEVNULL)
+    if r.returncode != 0 or not r.stdout.strip():
+        msg = (r.stderr or "").strip().splitlines()
+        print("\x1b[38;2;160;160;162mNo encontré ese Pokémon. Usa su nombre en inglés (ej. poke charizard)."
+              + (f"\n{msg[-1]}" if msg else "") + "\x1b[0m")
+        sys.exit(1)
+    nombre = (r.stderr or "").strip().splitlines()
+    return (nombre[0] if nombre else "?"), r.stdout.rstrip()
+
+
+def a_gris(texto):
+    def f(m):
+        r, g, b = int(m.group(2)), int(m.group(3)), int(m.group(4))
+        v = int(60 + (0.2126 * r + 0.7152 * g + 0.0722 * b) * 0.75)    # el contorno negro queda gris oscuro
+        return f"{m.group(1)};2;{v};{v};{v + 2}"
+    return ANSI.sub(f, texto)
+
+
+def silueta(texto):
+    return ANSI.sub(lambda m: f"{m.group(1)};2;200;200;202", texto)
+
+
+def main():
+    args = sys.argv[1:]
+    if args and args[0] in ("-h", "--help", "ayuda"):
+        print(__doc__.strip()); return 0
+    gris = "gris" in args
+    args = [a for a in args if a != "gris"]
+
+    if args and args[0] in ("quien", "quién"):
+        nombre, dibujo = pokeget(args[1:] or ["random"])
+        print("\x1b[1;38;2;230;230;232m¿Quién es ese Pokémon?\x1b[0m")
+        print(silueta(dibujo).rstrip())
+        try:
+            resp = input("\x1b[38;2;150;150;154mTu respuesta: \x1b[0m").strip()
+        except (EOFError, KeyboardInterrupt):
+            print(); resp = ""
+        limpio = lambda s: re.sub(r"[^a-z0-9]", "", s.lower())
+        if resp and limpio(resp) == limpio(nombre):
+            print(f"\x1b[1;38;2;245;245;247m¡Sí! Es {nombre}.\x1b[0m")
+        else:
+            print(f"\x1b[38;2;170;170;174m¡Era {nombre}!\x1b[0m")
+        print(dibujo.rstrip())
+        return 0
+
+    nombre, dibujo = pokeget(args or ["random"])
+    print(f"\x1b[1;38;2;230;230;232m{nombre}\x1b[0m")
+    print(a_gris(dibujo) if gris else dibujo)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

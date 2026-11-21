@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+"""apurale — latigazos en la terminal (idea #11 de "Mi terminal").
+
+  apurale                 tres latigazos y ¡ÁPURALE!
+  apurale <comando>       latigazos sin parar mientras corre el comando
+                          (apurale npm run build · apurale sudo dnf upgrade)
+  apurale -s ...          sin sonido
+"""
+import math, os, random, shutil, subprocess, sys, threading, time
+
+SONIDO = os.path.expanduser("~/.local/share/sonidos/latigo.wav")
+CRACK_WAV = 0.27            # segundo del chasquido dentro del .wav
+CICLO = 1.05                # duración de un latigazo
+N = 70                      # segmentos del látigo
+LARGO = 124                 # largo del látigo en "pixeles" braille
+RETRASO = 0.34              # cuánto tarda la punta en seguir al mango
+T_CRACK = 0.55 + RETRASO    # momento del chasquido dentro del ciclo
+
+FUENTE = {
+    "¡": ["█", " ", "█", "█", "█"], "!": ["█", "█", "█", " ", "█"],
+    "A": [" ███ ", "█   █", "█████", "█   █", "█   █"], "P": ["████ ", "█   █", "████ ", "█    ", "█    "],
+    "U": ["█   █", "█   █", "█   █", "█   █", " ███ "], "R": ["████ ", "█   █", "████ ", "█  █ ", "█   █"],
+    "L": ["█    ", "█    ", "█    ", "█    ", "█████"], "E": ["█████", "█    ", "████ ", "█    ", "█████"],
+}
+FRASES = ["¡Ándale, que el código no se escribe solo!", "¡Órale, a chambear!", "¡Ya merito, échale ganas!",
+          "¡Sin miedo al éxito!", "¡Ese build no se va a compilar solo!"]
+GRITOS = ["¡ÁNDALE!", "¡ÓRALE!", "¡APÚRALE!", "¡MÁS RÁPIDO!", "¡CHAMBEA!", "¡YA MERITO!"]
+
+
+def gris(v, txt, negrita=False):
+    v = max(40, min(253, int(v)))
+    return f"\x1b[{'1;' if negrita else ''}38;2;{v};{v};{v + 2}m{txt}\x1b[0m"
+
+
+def suave(a, b, p):
+    p = max(0.0, min(1.0, p))
+    p = p * p * (3 - 2 * p)
+    return a + (b - a) * p
+
+
+def mango(t):
+    """Ángulo del mango (grados; 0 = derecha, 90 = arriba) dentro de un ciclo."""
+    t %= CICLO
+    if t < 0.40:
+        return suave(-12, 118, t / 0.40)           # se va para atrás
+    if t < 0.55:
+        return suave(118, -4, (t - 0.40) / 0.15)   # tirón hacia adelante
+    return suave(-4, -12, (t - 0.55) / 0.5)
+
+
+class Lienzo:
+    """Dibujo con braille: cada celda tiene 2×4 puntitos."""
+    BITS = ((0x01, 0x08), (0x02, 0x10), (0x04, 0x20), (0x40, 0x80))
+
+    def __init__(self, cols, filas):
+        self.c, self.f = cols, filas
+        self.w, self.h = cols * 2, filas * 4
+        self.celdas = {}
+
+    def punto(self, x, y, tono):
+        x, y = int(round(x)), int(round(y))
+        if 0 <= x < self.w and 0 <= y < self.h:
+            k = (x // 2, y // 4)
+            bits, t = self.celdas.get(k, (0, 0))
+            self.celdas[k] = (bits | self.BITS[y % 4][x % 2], max(t, tono))
+
+    def linea(self, x0, y0, x1, y1, tono, grosor=1):
+        pasos = int(max(abs(x1 - x0), abs(y1 - y0)) * 1.5) + 1
+        for i in range(pasos + 1):
+            x = x0 + (x1 - x0) * i / pasos
+            y = y0 + (y1 - y0) * i / pasos
+            self.punto(x, y, tono)
+            if grosor > 1:
+                self.punto(x + 1, y, tono); self.punto(x, y + 1, tono)
+
+    def texto(self, extra=None):
+        """extra = (col, fila, texto): letras encima del dibujo."""
+        filas = []
+        for fy in range(self.f):
+            s = []
+            for fx in range(self.c + 14):
+                if extra and fy == extra[1] and extra[0] <= fx < extra[0] + len(extra[2]):
+                    s.append(gris(255, extra[2][fx - extra[0]], True))
+                elif (fx, fy) in self.celdas:
+                    bits, t = self.celdas[(fx, fy)]
+                    s.append(gris(t, chr(0x2800 + bits)))
+                else:
+                    s.append(" ")
+            filas.append("".join(s).rstrip())
+        return filas
+
+
+def cuadro(t, cols, filas):
+    """Un cuadro de la animación en el tiempo t."""
+    lz = Lienzo(cols, filas)
+    ox, oy = 10, int(lz.h * 0.5)                 # dónde está la mano
+    tc = t % CICLO
+    # mango (grueso)
+    a = math.radians(mango(t))
+    hx, hy = ox + math.cos(a) * 12, oy - math.sin(a) * 12
+    lz.linea(ox, oy, hx, hy, 245, grosor=2)
+    # puño
+    for dx in range(-3, 3):
+        for dy in range(-2, 4):
+            lz.punto(ox + dx, oy + dy, 220)
+    # látigo: cada segmento repite el ángulo del mango con retraso → se forma el rizo
+    x, y = hx, hy
+    seg = LARGO / N
+    for i in range(1, N + 1):
+        p = i / N
+        ang = mango(t - RETRASO * p ** 0.85) - 5 * p       # un poco de caída al final
+        r = math.radians(ang)
+        nx, ny = x + math.cos(r) * seg, y - math.sin(r) * seg
+        lz.linea(x, y, nx, ny, 235 - 150 * p, grosor=2 if p < 0.25 else 1)
+        x, y = nx, ny
+    # chasquido en la punta
+    dt = tc - T_CRACK
+    truena = 0 <= dt < 0.16
+    if truena:
+        rad = 7 + dt * 90
+        for k in range(12):
+            b = k * math.pi / 6 + 0.26
+            lz.linea(x + math.cos(b) * rad * 0.35, y + math.sin(b) * rad * 0.35,
+                     x + math.cos(b) * rad, y + math.sin(b) * rad, 255)
+    return lz, (x, y), truena
+
+
+def letrero():
+    filas, acento = [""] * 5, ""
+    for ch in "¡APURALE!":
+        g = FUENTE[ch]
+        acento += ("  ▄▀ " if ch == "A" and not acento.strip() else " " * len(g[0])) + "  "
+        for i in range(5):
+            filas[i] += g[i] + "  "
+    return [acento.rstrip()] + filas
+
+
+class Comando:
+    """Corre el comando en segundo plano y guarda lo que va soltando."""
+
+    def __init__(self, cmd):
+        self.lineas, self.ultima, self.codigo = [], "", None
+        self.p = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                  stdin=subprocess.DEVNULL, text=True, errors="replace", bufsize=1)
+        threading.Thread(target=self._leer, daemon=True).start()
+
+    def _leer(self):
+        for l in self.p.stdout:
+            l = l.rstrip("\n")
+            self.lineas.append(l)
+            if l.strip():
+                self.ultima = l.split("\r")[-1]
+        self.codigo = self.p.wait()
+
+    def corriendo(self):
+        return self.codigo is None
+
+
+def main():
+    args = sys.argv[1:]
+    mudo = False
+    if args and args[0] in ("-s", "--sin-sonido"):
+        mudo, args = True, args[1:]
+    if args and args[0] in ("-h", "--help"):
+        print(__doc__.strip()); return 0
+
+    tcols = shutil.get_terminal_size((80, 24)).columns
+    COLS = max(40, min(72, tcols - 4))
+    FILAS = 13
+    H = FILAS + 2
+    out = sys.stdout
+    puede_sonar = not mudo and os.path.exists(SONIDO) and shutil.which("pw-play")
+    cmd = Comando(" ".join(args)) if args else None
+    golpes = 0 if cmd else 3
+
+    out.write("\x1b[?25l" + "\n" * H); out.flush()
+
+    def pinta(lineas):
+        out.write(f"\x1b[{H}A")
+        for l in lineas[:H] + [""] * (H - len(lineas)):
+            out.write("\r\x1b[2K  " + l + "\n")
+        out.flush()
+
+    t0 = time.monotonic()
+    ciclo_sonado = -1
+    grito = random.choice(GRITOS)
+    try:
+        while True:
+            t = time.monotonic() - t0
+            n = int(t // CICLO)
+            # ¿ya acabamos?
+            if cmd is None and n >= golpes:
+                break
+            if cmd is not None and not cmd.corriendo() and (t % CICLO) > T_CRACK + 0.15:
+                break
+            # sonido sincronizado: arranca antes para que el chasquido caiga en T_CRACK
+            if puede_sonar and n != ciclo_sonado and (t % CICLO) >= T_CRACK - CRACK_WAV:
+                subprocess.Popen(["pw-play", SONIDO], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                ciclo_sonado = n
+            lz, (px, py), truena = cuadro(t, COLS, FILAS)
+            extra = None
+            if truena:                                         # grito arriba de la punta
+                fy = max(0, int(py // 4) - 3)
+                fx = max(0, min(COLS + 13 - len(grito), int(px // 2) - len(grito) // 2))
+                extra = (fx, fy, grito)
+            elif (t % CICLO) < 0.05:
+                grito = random.choice(GRITOS)
+            dibujo = lz.texto(extra)
+            if cmd is not None:
+                seg = int(t)
+                estado = gris(200, f"⏱ {seg // 60:02d}:{seg % 60:02d}  ") + gris(150, " ".join(args)[:COLS - 10])
+                ult = cmd.ultima.replace("\t", " ")[:COLS]
+                pinta(dibujo + [estado, gris(110, ult)])
+            else:
+                pinta(dibujo + ["", ""])
+            time.sleep(1 / 30)
+
+        if cmd is None:                                        # remate: ¡ÁPURALE!
+            cartel = letrero()
+            ancho = max(len(l) for l in cartel)
+            for i in range(7):
+                pad = max(0, (COLS - ancho) // 2 + [2, -2, 1, -1, 1, 0, 0][i])
+                tono = 253 if i % 2 == 0 else 200
+                final = [""] * 3 + [" " * pad + gris(tono, l) for l in cartel] + [""]
+                if i == 6:
+                    final.append(gris(140, random.choice(FRASES)))
+                pinta(final)
+                time.sleep(0.06)
+            return 0
+
+        # acabó el comando: borro la animación y muestro su salida
+        out.write(f"\x1b[{H}A\x1b[J")
+        for l in cmd.lineas:
+            out.write(l + "\n")
+        seg = int(time.monotonic() - t0)
+        if cmd.codigo == 0:
+            out.write(gris(240, f"✔ ¡Listo! terminó en {seg // 60}:{seg % 60:02d}", True) + "  " +
+                      gris(140, random.choice(["Así me gusta.", "Eso, campeón.", "Ni dolió.", "A la primera."])) + "\n")
+        else:
+            out.write(gris(240, f"✘ Falló (código {cmd.codigo}) tras {seg // 60}:{seg % 60:02d}", True) + "  " +
+                      gris(140, "Ni a latigazos salió. Revisa arriba.") + "\n")
+        return cmd.codigo
+    except KeyboardInterrupt:
+        if cmd is not None and cmd.corriendo():
+            cmd.p.terminate()
+        out.write(f"\x1b[{H}A\x1b[J" + gris(160, "Latigazos cancelados.") + "\n")
+        return 130
+    finally:
+        out.write("\x1b[?25h\x1b[0m"); out.flush()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

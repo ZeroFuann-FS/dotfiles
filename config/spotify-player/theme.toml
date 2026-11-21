@@ -1,0 +1,41 @@
+# Tema Carbon: grises, sin colores
+[[themes]]
+name = "carbon"
+[themes.palette]
+foreground = "#b8b8bc"
+black = "#121214"
+red = "#d0d0d4"
+green = "#e6e6e8"
+yellow = "#c8c8cc"
+blue = "#a0a0a6"
+magenta = "#d0d0d4"
+cyan = "#f0f0f2"
+white = "#e6e6e8"
+bright_black = "#5a5a60"
+bright_red = "#e0e0e4"
+bright_green = "#f0f0f2"
+bright_yellow = "#d8d8dc"
+bright_blue = "#b8b8bc"
+bright_magenta = "#e0e0e4"
+bright_cyan = "#ffffff"
+bright_white = "#ffffff"
+
+[themes.component_style]
+block_title = { fg = "#8a8a90", modifiers = ["Bold"] }
+border = { fg = "#3a3a3e" }
+playback_status = { fg = "#f0f0f2", modifiers = ["Bold"] }
+playback_track = { fg = "#ffffff", modifiers = ["Bold"] }
+playback_artists = { fg = "#d0d0d4" }
+playback_album = { fg = "#8a8a90" }
+playback_genres = { fg = "#5a5a60" }
+playback_metadata = { fg = "#5a5a60" }
+playback_progress_bar = { fg = "#e6e6e8", bg = "#2a2a2e" }
+playback_progress_bar_unfilled = { fg = "#2a2a2e" }
+current_playing = { fg = "#ffffff", modifiers = ["Bold"] }
+page_desc = { fg = "#8a8a90", modifiers = ["Bold"] }
+table_header = { fg = "#8a8a90", modifiers = ["Bold"] }
+selection = { fg = "#ffffff", bg = "#2a2a2e", modifiers = ["Bold"] }
+secondary_row = { fg = "#a0a0a6" }
+like = { fg = "#ffffff" }
+lyrics_played = { fg = "#5a5a60" }
+lyrics_playing = { fg = "#ffffff", modifiers = ["Bold"] }

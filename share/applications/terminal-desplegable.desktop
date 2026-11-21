@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal desplegable
+Comment=kitty que baja desde arriba (Meta+Enter)
+Exec=terminal-desplegable
+Icon=utilities-terminal
+NoDisplay=true

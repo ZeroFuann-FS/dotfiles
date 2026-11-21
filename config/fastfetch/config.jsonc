@@ -1,0 +1,116 @@
+{
+ "logo": {
+  "source": "~/.config/fastfetch/z-fijo.png",
+  "type": "kitty-direct",
+  "width": 24,
+  "height": 12,
+  "padding": {
+   "top": 3,
+   "left": 3,
+   "right": 5
+  }
+ },
+ "display": {
+  "separator": "  ",
+  "color": {
+   "keys": "38;5;245",
+   "output": "38;5;253"
+  }
+ },
+ "modules": [
+  {
+   "type": "title",
+   "format": "ZeroFuann · fedora",
+   "color": {
+    "user": "38;5;255"
+   }
+  },
+  "break",
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m┌─ sistema ───────────────────────"
+  },
+  {
+   "type": "os",
+   "key": "│  󰌽  sistema "
+  },
+  {
+   "type": "kernel",
+   "key": "│    kernel  "
+  },
+  {
+   "type": "uptime",
+   "key": "│  󰅐  activo  "
+  },
+  {
+   "type": "packages",
+   "key": "│  󰏖  paquetes",
+   "format": "{all}"
+  },
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m│"
+  },
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m├─ escritorio ────────────────────"
+  },
+  {
+   "type": "de",
+   "key": "│  󰍹  plasma  "
+  },
+  {
+   "type": "wm",
+   "key": "│  󱂫  ventanas"
+  },
+  {
+   "type": "terminal",
+   "key": "│    terminal"
+  },
+  {
+   "type": "shell",
+   "key": "│  󰞷  shell   "
+  },
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m│"
+  },
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m├─ equipo ────────────────────────"
+  },
+  {
+   "type": "cpu",
+   "key": "│  󰻠  cpu     ",
+   "format": "{name}"
+  },
+  {
+   "type": "gpu",
+   "key": "│  󰢮  gpu     ",
+   "format": "{name}"
+  },
+  {
+   "type": "memory",
+   "key": "│  󰍛  ram     "
+  },
+  {
+   "type": "disk",
+   "key": "│  󰋊  disco   ",
+   "folders": "/"
+  },
+  {
+   "type": "battery",
+   "key": "│  󰁹  batería "
+  },
+  {
+   "type": "custom",
+   "format": "\u001b[38;5;243m└─────────────────────────────────"
+  },
+  "break",
+  {
+   "type": "colors",
+   "symbol": "circle",
+   "paddingLeft": 2
+  }
+ ]
+}

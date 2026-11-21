@@ -1,0 +1,62 @@
+# Carbon (ZeroFuann): grises, lo seleccionado en blanco
+[mgr]
+cwd            = { fg = "#f0f0f2", bold = true }
+hovered        = { fg = "#ffffff", bg = "#2a2a2e", bold = true }
+preview_hovered = { fg = "#ffffff", bg = "#2a2a2e" }
+find_keyword   = { fg = "#ffffff", bold = true, underline = true }
+find_position  = { fg = "#8a8a90", italic = true }
+marker_copied  = { fg = "#d0d0d4", bg = "#d0d0d4" }
+marker_cut     = { fg = "#8a8a90", bg = "#8a8a90" }
+marker_marked  = { fg = "#f0f0f2", bg = "#f0f0f2" }
+marker_selected = { fg = "#ffffff", bg = "#ffffff" }
+count_copied   = { fg = "#121214", bg = "#d0d0d4" }
+count_cut      = { fg = "#121214", bg = "#8a8a90" }
+count_selected = { fg = "#121214", bg = "#f0f0f2" }
+border_symbol  = "│"
+border_style   = { fg = "#3a3a3e" }
+
+[tabs]
+active   = { fg = "#121214", bg = "#d0d0d4", bold = true }
+inactive = { fg = "#8a8a90", bg = "#1e1e20" }
+
+[mode]
+normal_main = { fg = "#121214", bg = "#d0d0d4", bold = true }
+normal_alt  = { fg = "#d0d0d4", bg = "#2a2a2e" }
+select_main = { fg = "#121214", bg = "#f0f0f2", bold = true }
+select_alt  = { fg = "#f0f0f2", bg = "#2a2a2e" }
+unset_main  = { fg = "#121214", bg = "#8a8a90", bold = true }
+unset_alt   = { fg = "#8a8a90", bg = "#2a2a2e" }
+
+[status]
+perm_type  = { fg = "#d0d0d4" }
+perm_read  = { fg = "#b8b8bc" }
+perm_write = { fg = "#f0f0f2" }
+perm_exec  = { fg = "#ffffff", bold = true }
+perm_sep   = { fg = "#4a4a50" }
+progress_label  = { fg = "#f0f0f2", bold = true }
+progress_normal = { fg = "#d0d0d4", bg = "#2a2a2e" }
+progress_error  = { fg = "#ffffff", bg = "#5a5a60" }
+
+[input]
+border   = { fg = "#5a5a60" }
+title    = { fg = "#d0d0d4" }
+value    = { fg = "#f0f0f2" }
+selected = { reversed = true }
+
+[filetype]
+rules = [
+  { mime = "image/*", fg = "#d0d0d4" },
+  { mime = "{audio,video}/*", fg = "#c0c0c4" },
+  { mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#a0a0a6" },
+  { mime = "application/{pdf,doc,rtf}", fg = "#d0d0d4" },
+  { url = "*", is = "orphan", fg = "#5a5a60" },
+  { url = "*", is = "exec", fg = "#ffffff", bold = true },
+  { url = "*/", fg = "#f0f0f2", bold = true },
+  { url = "*", fg = "#b8b8bc" },
+]
+
+# Carpetas en gris (los íconos de archivo conservan su color para reconocerlos)
+[icon]
+prepend_conds = [
+  { if = "dir", text = "󰉋", fg = "#d0d0d4" },
+]

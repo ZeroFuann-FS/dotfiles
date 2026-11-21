@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""clima — pronóstico en ASCII y en gris Carbon (idea #15 de "Mi terminal").
+
+  clima               hoy y los próximos 2 días en tu ciudad (CLIMA_CIUDAD, o la que detecte por IP)
+  clima hoy           solo ahorita (dibujo chico)
+  clima corto         una línea: 🌤 +22°C, viento, humedad
+  clima luna          fase de la luna
+  clima <ciudad>      otra ciudad (clima xalapa · clima "ciudad de mexico" · clima hoy cdmx)
+"""
+import os, re, shutil, sys, urllib.error, urllib.parse, urllib.request
+
+CASA = os.environ.get("CLIMA_CIUDAD", "")   # vacío = wttr.in adivina tu ciudad por la IP
+
+
+def gris_256(n):
+    """Convierte un color xterm-256 en un gris de la paleta Carbon (según su brillo)."""
+    if n < 16:
+        base = [(0, 0, 0), (205, 0, 0), (0, 205, 0), (205, 205, 0), (0, 0, 238), (205, 0, 205), (0, 205, 205),
+                (229, 229, 229), (127, 127, 127), (255, 0, 0), (0, 255, 0), (255, 255, 0), (92, 92, 255),
+                (255, 0, 255), (0, 255, 255), (255, 255, 255)]
+        r, g, b = base[n]
+    elif n < 232:
+        n -= 16
+        lv = [0, 95, 135, 175, 215, 255]
+        r, g, b = lv[n // 36], lv[(n // 6) % 6], lv[n % 6]
+    else:
+        r = g = b = 8 + (n - 232) * 10
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    v = int(105 + lum / 255 * 148)          # 105 (gris oscuro) … 253 (casi blanco)
+    return f"38;2;{v};{v};{v + 2}"
+
+
+def agrisa(texto):
+    return re.sub(r"38;5;(\d+)", lambda m: gris_256(int(m.group(1))), texto)
+
+
+def pide(lugar, opciones):
+    url = f"https://wttr.in/{urllib.parse.quote(lugar)}?{urllib.parse.quote(opciones, safe='=&')}"
+    req = urllib.request.Request(url, headers={"User-Agent": "curl/8"})   # así wttr.in responde en texto
+    with urllib.request.urlopen(req, timeout=12) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def main():
+    args = sys.argv[1:]
+    if args and args[0] in ("-h", "--help", "ayuda"):
+        print(__doc__.strip()); return 0
+    modo = "todo"
+    if args and args[0] in ("hoy", "corto", "luna"):
+        modo, args = args[0], args[1:]
+    lugar = " ".join(args) or CASA
+    ancho = shutil.get_terminal_size((80, 24)).columns
+    try:
+        if modo == "corto":
+            t = pide(lugar, "lang=es&m&format=%l: %C, %t (se siente %f) · viento %w · humedad %h · lluvia %p")
+            print("\x1b[38;2;230;230;232m" + t.strip() + "\x1b[0m"); return 0
+        if modo == "luna":
+            t = pide("Moon", "lang=es&F")
+        elif modo == "hoy":
+            t = pide(lugar, "lang=es&m&0&F")
+        else:
+            t = pide(lugar, "lang=es&m&F" + ("" if ancho >= 125 else "&n"))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print(f"\x1b[38;2;160;160;162mNo encontré «{lugar}». Prueba con otro nombre.\x1b[0m"); return 1
+        print(f"\x1b[38;2;160;160;162mNo encontré «{lugar}» o wttr.in falló (error {e.code}). Revisa el nombre o intenta en un rato.\x1b[0m"); return 1
+    except Exception as e:
+        print(f"\x1b[38;2;160;160;162mNo pude traer el clima ({e.__class__.__name__}). ¿Hay internet?\x1b[0m")
+        return 1
+    if "Unknown location" in t or "ERROR" in t[:200]:
+        print(f"\x1b[38;2;160;160;162mNo encontré «{lugar}». Prueba con otro nombre.\x1b[0m"); return 1
+    t = t.replace("Pronóstico del tiempo en:", "\x1b[1;38;2;240;240;242m☁ Clima en\x1b[0m")
+    t = re.sub(r"(Ubicación: [^\[\n]*?)\s*\[[^\]]*\]", lambda m: "\x1b[38;2;110;110;114m" + m.group(1) + "\x1b[0m", t)
+    print(agrisa(t).rstrip())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

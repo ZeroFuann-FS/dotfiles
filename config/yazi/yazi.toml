@@ -1,0 +1,15 @@
+# yazi (idea #7 de "Mi terminal")
+[mgr]
+ratio          = [1, 3, 4]
+sort_by        = "natural"
+sort_dir_first = true
+show_hidden    = false
+linemode       = "size"
+show_symlink   = true
+
+# Enter en video o audio lo abre en VLC; "o" deja elegir Dragon Player (yazi 26 usa %s, no "$@")
+[opener]
+play = [
+  { run = 'vlc %s', orphan = true, desc = "VLC", for = "unix" },
+  { run = 'dragon %s1', orphan = true, desc = "Dragon Player", for = "unix" },
+]

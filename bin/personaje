@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""personaje — tus personajes y fotos en la terminal (extra de "Mi terminal").
+
+Pon imágenes en ~/Imágenes/terminal/ (en subcarpetas: anime, marvel, barca, otros…).
+El nombre del archivo es el nombre del personaje: rudeus-greyrat.png → «Rudeus Greyrat».
+Mejor PNG con fondo transparente.
+
+  personaje                uno al azar, en pixel art a colores
+  personaje anime          al azar de esa carpeta
+  personaje rudeus         el que tenga eso en el nombre
+  personaje gris …         en gris Carbon
+  personaje real …         la imagen tal cual, en alta calidad (kitty)
+  personaje quien …        ¿Quién es? — adivina por la silueta
+  personaje grande …       más grande (o chico)
+  personaje mini …         chiquito (~8 líneas), sin nombre
+  frase | personaje mini <nombre> junto   el dibujo con la frase a su lado
+  personaje lista          qué hay en cada carpeta
+"""
+import os, random, re, shutil, subprocess, sys, unicodedata
+
+CARPETA = os.path.expanduser("~/Imágenes/terminal")
+EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
+
+
+def tono(v):
+    v = max(40, min(253, int(v)))
+    return f"\x1b[38;2;{v};{v};{v + 2}m"
+
+
+def sin_acentos(s):
+    return "".join(c for c in unicodedata.normalize("NFD", s.lower()) if unicodedata.category(c) != "Mn")
+
+
+def nombre_bonito(ruta):
+    base = os.path.splitext(os.path.basename(ruta))[0]
+    return " ".join(p.capitalize() for p in re.split(r"[-_ ]+", base) if p)
+
+
+def imagenes():
+    todas = []
+    for raiz, _, archivos in os.walk(CARPETA):
+        for a in archivos:
+            if a.lower().endswith(EXTS):
+                todas.append(os.path.join(raiz, a))
+    return sorted(todas)
+
+
+def quita_fondo(img):
+    """Si la imagen no trae transparencia, borra el fondo parejo que toca las esquinas."""
+    from PIL import ImageDraw
+    if img.getchannel("A").getextrema()[0] < 250:
+        return img                                       # ya trae transparencia
+    marca = (255, 0, 255, 0)
+    img = img.copy()
+    w, h = img.size
+    for x, y in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
+        if img.getpixel((x, y))[3] != 0:
+            ImageDraw.floodfill(img, (x, y), marca, thresh=38)
+    return img
+
+
+def pixeles(ruta, ancho, alto_max, modo):
+    from PIL import Image
+    img = Image.open(ruta)
+    try:
+        img.seek(0)
+    except EOFError:
+        pass
+    img = img.convert("RGBA")
+    if modo == "quien" or img.getchannel("A").getextrema()[0] >= 250:
+        img = quita_fondo(img)
+    bbox = img.getchannel("A").point(lambda a: 255 if a > 60 else 0).getbbox()
+    if bbox:
+        img = img.crop(bbox)                             # recorta lo transparente de sobra
+    w, h = img.size
+    esc = min(ancho / w, (alto_max * 2) / h)
+    nw, nh = max(1, int(w * esc)), max(2, int(h * esc))
+    nh += nh % 2
+    img = img.resize((nw, nh), Image.LANCZOS)
+    return img
+
+
+def dibuja(img, modo):
+    w, h = img.size
+    px = img.load()
+    filas = []
+    for y in range(0, h, 2):
+        s, ult = [], None
+        for x in range(w):
+            cols = []
+            for yy in (y, y + 1):
+                r, g, b, a = px[x, yy] if yy < h else (0, 0, 0, 0)
+                if a < 110:
+                    cols.append(None)
+                    continue
+                if modo == "quien":
+                    cols.append((200, 200, 202))
+                elif modo == "gris":
+                    v = int(55 + (0.2126 * r + 0.7152 * g + 0.0722 * b) * 0.77)
+                    cols.append((v, v, v + 2))
+                else:
+                    cols.append((r, g, b))
+            arriba, abajo = cols
+            if arriba is None and abajo is None:
+                cod, ch = "\x1b[0m", " "
+            elif abajo is None:
+                cod, ch = "\x1b[0m\x1b[38;2;%d;%d;%dm" % arriba, "▀"
+            elif arriba is None:
+                cod, ch = "\x1b[0m\x1b[38;2;%d;%d;%dm" % abajo, "▄"
+            else:
+                cod, ch = "\x1b[38;2;%d;%d;%d;48;2;%d;%d;%dm" % (arriba + abajo), "▀"
+            if cod != ult:
+                s.append(cod); ult = cod
+            s.append(ch)
+        filas.append("".join(s).rstrip() + "\x1b[0m")
+    while filas and not filas[-1].replace("\x1b[0m", "").strip():
+        filas.pop()
+    return "\n".join(filas)
+
+
+def main():
+    args = sys.argv[1:]
+    if args and args[0] in ("-h", "--help", "ayuda"):
+        print(__doc__.strip()); return 0
+    os.makedirs(CARPETA, exist_ok=True)
+    banderas = {"gris", "real", "quien", "quién", "grande", "chico", "mini", "junto", "lista"}
+    modo = "color"
+    for b in ("gris", "real"):
+        if b in args:
+            modo = b
+    if "quien" in args or "quién" in args:
+        modo = "quien"
+    tam = 1.5 if "grande" in args else 0.6 if "chico" in args else 1.0
+    mini = "mini" in args
+    junto = "junto" in args
+    busca = [sin_acentos(a) for a in args if a not in banderas]
+    todas = imagenes()
+
+    if "lista" in args:
+        if not todas:
+            print(f"Todavía no hay imágenes en {CARPETA}"); return 0
+        grupos = {}
+        for r in todas:
+            grupos.setdefault(os.path.relpath(os.path.dirname(r), CARPETA), []).append(nombre_bonito(r))
+        for g, ns in sorted(grupos.items()):
+            print(f"{tono(230)}\x1b[1m{'(sueltas)' if g == '.' else g}\x1b[0m {tono(120)}{len(ns)}\x1b[0m")
+            print("  " + tono(170) + " · ".join(ns) + "\x1b[0m")
+        return 0
+    if not todas:
+        print(f"{tono(200)}Todavía no hay imágenes.{tono(140)} Pon PNG o JPG en {CARPETA}/anime, /marvel, /barca…\x1b[0m")
+        return 1
+    if busca:
+        cand = [r for r in todas if all(t in sin_acentos(os.path.relpath(r, CARPETA)) for t in busca)]
+        if not cand:
+            print(f"{tono(160)}No encontré «{' '.join(busca)}». Prueba: personaje lista\x1b[0m"); return 1
+    else:
+        cand = todas
+    ruta = random.choice(cand)
+    nombre = nombre_bonito(ruta)
+
+    cols, filas = shutil.get_terminal_size((80, 24))
+    if modo == "real":
+        print(f"{tono(230)}\x1b[1m{nombre}\x1b[0m")
+        subprocess.run(["kitten", "icat", "--stdin=no", "--align=left", ruta])
+        return 0
+
+    ancho = max(16, int(min(cols - 4, 64) * tam))
+    alto = max(8, int(min(filas - 5, 22) * tam))
+    if mini:
+        ancho, alto = 22, 8                                # chiquito: ~8 líneas de alto
+    try:
+        img = pixeles(ruta, ancho, alto, modo)
+    except Exception as e:
+        print(f"{tono(160)}No pude abrir {os.path.basename(ruta)} ({e.__class__.__name__}).\x1b[0m"); return 1
+    if modo == "quien":
+        print(f"{tono(230)}\x1b[1m¿Quién es?\x1b[0m")
+        print(dibuja(img, "quien"))
+        try:
+            resp = input(f"{tono(150)}Tu respuesta: \x1b[0m").strip()
+        except (EOFError, KeyboardInterrupt):
+            print(); resp = ""
+        limpio = lambda s: re.sub(r"[^a-z0-9]", "", sin_acentos(s))
+        ok = resp and (limpio(resp) == limpio(nombre) or
+                       any(limpio(resp) == limpio(p) for p in nombre.split() if len(p) > 2))
+        print(f"{tono(245)}\x1b[1m¡Sí! Es {nombre}.\x1b[0m" if ok else f"{tono(170)}¡Era {nombre}!\x1b[0m")
+        print(dibuja(img, "color"))
+        return 0
+    dibujo = dibuja(img, modo)
+    if junto:                                              # pega a la derecha lo que llegue por la tubería
+        texto = [] if sys.stdin.isatty() else sys.stdin.read().rstrip("\n").split("\n")
+        izq = dibujo.split("\n")
+        w = img.size[0]
+        arriba = max(0, (len(izq) - len(texto)) // 2)
+        texto = [""] * arriba + texto
+        for i in range(max(len(izq), len(texto))):
+            l = izq[i] if i < len(izq) else ""
+            vis = len(re.sub(r"\x1b\[[0-9;]*m", "", l))
+            print("  " + l + " " * (w - vis) + "  " + (texto[i] if i < len(texto) else ""))
+        return 0
+    if not mini:
+        print(f"{tono(230)}\x1b[1m{nombre}\x1b[0m")
+    print(dibujo)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

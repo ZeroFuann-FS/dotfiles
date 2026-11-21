@@ -1,0 +1,31 @@
+# Estilo P3 "Árbol" con ZeroFuann (gris, igual que las líneas de fastfetch)
+add_newline = true
+format = """[╭─](#5a5a60) $username$directory$git_branch$git_status$nodejs$cmd_duration$fill$time
+[╰─](#5a5a60)$character"""
+[fill]
+symbol = " "
+[directory]
+style = "bold #e6e6e8"
+format = "[ · ](#5a5a60)[  $path](#b8b8bc)"
+truncation_length = 3
+[git_branch]
+symbol = " "
+format = "[ · ](#5a5a60)[$symbol$branch](#b8b8bc)"
+[git_status]
+format = "([ $all_status$ahead_behind](#8a8a90))"
+[nodejs]
+format = "[ · ](#5a5a60)[ $version](#8a8a90)"
+[cmd_duration]
+format = "[ · ](#5a5a60)[󰅐 $duration](#8a8a90)"
+[time]
+disabled = false
+format = "[$time](#5a5a60)"
+time_format = "%H:%M"
+[character]
+success_symbol = "[❯](bold #e6e6e8)"
+error_symbol = "[❯](bold #d98880)"
+
+[username]
+show_always = true
+style_user = "bold #f0f0f2"
+format = "[ ZeroFuann]($style)"

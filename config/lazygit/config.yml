@@ -1,0 +1,31 @@
+# lazygit en gris (Carbon). Idea #6 de "Mi terminal".
+gui:
+  language: en   # no trae español
+  nerdFontsVersion: "3"
+  border: rounded
+  showRandomTip: false
+  showBottomLine: true
+  theme:
+    activeBorderColor: ["#f0f0f2", bold]
+    inactiveBorderColor: ["#3a3a3e"]
+    searchingActiveBorderColor: ["#ffffff", bold]
+    optionsTextColor: ["#8a8a90"]
+    selectedLineBgColor: ["#2a2a2e"]
+    inactiveViewSelectedLineBgColor: ["#1e1e20"]
+    cherryPickedCommitFgColor: ["#ffffff"]
+    cherryPickedCommitBgColor: ["#3a3a3e"]
+    markedBaseCommitFgColor: ["#ffffff"]
+    markedBaseCommitBgColor: ["#3a3a3e"]
+    unstagedChangesColor: ["#d0d0d4"]
+    defaultFgColor: ["#b8b8bc"]
+    authorColors:
+      "*": "#d0d0d4"
+    branchColorPatterns:
+      ".*": "#f0f0f2"
+git:
+  diffRenderers:
+    - colorArg: always
+      type: rawGit
+update:
+  method: never
+disableStartupPopups: true

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Muestra u oculta la kitty desplegable (la primera vez la crea). Atajo: Meta+Enter
+exec kitten quick-access-terminal

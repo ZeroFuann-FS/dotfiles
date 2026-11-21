@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""fuego — fogata animada en la terminal (idea #19 de "Mi terminal").
+
+  fuego          fuego en gris Carbon (de negro a blanco)
+  fuego -c       fuego a colores (rojo, naranja, amarillo)
+  fuego -a       con letras ASCII en vez de bloques
+
+  Espacio = apagar / prender · ←/→ = viento · cualquier otra tecla = salir.
+"""
+import os, random, select, shutil, sys, termios, time, tty
+
+MAX = 36                     # intensidad máxima del fuego
+FONDO = (14, 14, 16)         # fondo de kitty Carbon (#0e0e10)
+ASCII = " .:-=+*#%@"
+
+
+def mezcla(paradas, n):
+    """Paleta de n tonos interpolando entre colores (r, g, b)."""
+    out = []
+    for i in range(n):
+        p = i / (n - 1) * (len(paradas) - 1)
+        k = min(int(p), len(paradas) - 2)
+        f = p - k
+        a, b = paradas[k], paradas[k + 1]
+        out.append(tuple(int(a[j] + (b[j] - a[j]) * f) for j in range(3)))
+    return out
+
+
+def main():
+    args = sys.argv[1:]
+    if "-h" in args or "--help" in args:
+        print(__doc__.strip()); return
+    if "-c" in args:
+        paleta = mezcla([FONDO, (70, 8, 6), (150, 25, 8), (215, 75, 10), (245, 150, 25),
+                         (252, 215, 80), (255, 250, 220)], MAX + 1)
+    else:
+        paleta = mezcla([FONDO, (40, 40, 43), (85, 85, 89), (140, 140, 144), (195, 195, 198),
+                         (235, 235, 237), (253, 253, 255)], MAX + 1)
+    modo_ascii = "-a" in args
+    fg = [f"38;2;{r};{g};{b}" for r, g, b in paleta]
+    bg = [f"48;2;{r};{g};{b}" for r, g, b in paleta]
+
+    fd = sys.stdin.fileno()
+    viejo = termios.tcgetattr(fd)
+    out = sys.stdout
+    out.write("\x1b[?1049h\x1b[?25l\x1b[2J")
+    cols = filas = 0
+    prendido, viento = True, 0
+    try:
+        tty.setcbreak(fd)
+        while True:
+            if select.select([sys.stdin], [], [], 0)[0]:
+                k = os.read(fd, 16)
+                if k == b" ":
+                    prendido = not prendido
+                elif k == b"\x1b[D":
+                    viento = max(-2, viento - 1)
+                elif k == b"\x1b[C":
+                    viento = min(2, viento + 1)
+                else:
+                    break
+            c2, f2 = shutil.get_terminal_size()
+            if (c2, f2) != (cols, filas):
+                cols, filas = c2, f2
+                alto = (filas if modo_ascii else filas * 2) + 3    # medio bloque = 2 pixeles por celda; +3 filas de base escondidas
+                pix = [[0.0] * cols for _ in range(alto)]
+                enfria = MAX / (alto * 0.62)                      # las llamas llegan a ~media ventana
+                out.write("\x1b[2J")
+            # base del fuego: puntos muy calientes y fríos al azar (de ahí salen las lenguas)
+            base, base2 = pix[alto - 1], pix[alto - 2]
+            for x in range(cols):
+                if prendido:
+                    v = MAX * 1.25 if random.random() < 0.55 else 0.0
+                else:
+                    v = 0.0
+                base[x] = v
+                base2[x] = (base2[x] + v) * 0.5
+            # el calor sube promediando a sus vecinos de abajo y se enfría
+            rnd = random.random
+            ult_x = cols - 1
+            for y in range(alto - 2):
+                fila, a1, a2 = pix[y], pix[y + 1], pix[y + 2]
+                for x in range(cols):
+                    sx = x - viento if 0 <= x - viento <= ult_x else x
+                    iz = sx - 1 if sx > 0 else sx
+                    de = sx + 1 if sx < ult_x else sx
+                    v = (a1[iz] + a1[sx] + a1[de] + a2[sx]) * 0.25 - enfria * (0.6 + rnd() * 0.8)
+                    fila[x] = v if v > 0 else 0.0
+            # a la pantalla
+            buf = ["\x1b[H"]
+            if modo_ascii:
+                for y in range(filas):
+                    ult = -1
+                    for x in range(cols):
+                        v = min(MAX, int(pix[y][x]))
+                        if v != ult:
+                            buf.append(f"\x1b[1;{fg[min(MAX, v * 3 // 2 + 8) if v else 0]}m"); ult = v
+                        buf.append(ASCII[min(len(ASCII) - 1, int((v / MAX) ** 0.7 * (len(ASCII) - 1) + 0.5))])
+                    if y < filas - 1:
+                        buf.append("\r\n")
+            else:
+                for y in range(filas):
+                    arriba, abajo = pix[2 * y], pix[2 * y + 1]
+                    ult = None
+                    for x in range(cols):
+                        a, b = min(MAX, int(arriba[x])), min(MAX, int(abajo[x]))
+                        par = (a, b)
+                        if a == 0 and b == 0:
+                            if ult != "v":
+                                buf.append("\x1b[0m"); ult = "v"
+                            buf.append(" ")
+                        else:
+                            if par != ult:
+                                buf.append(f"\x1b[{fg[a]};{bg[b]}m"); ult = par
+                            buf.append("▀")
+                    buf.append("\x1b[0m")
+                    if y < filas - 1:
+                        buf.append("\r\n")
+            out.write("".join(buf) + "\x1b[0m")
+            out.flush()
+            time.sleep(1 / 24)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, viejo)
+        out.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+        out.flush()
+
+
+if __name__ == "__main__":
+    main()

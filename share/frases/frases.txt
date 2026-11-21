@@ -1,0 +1,55 @@
+# categoría | frase | quién
+# Puedes agregar las tuyas aquí o con:  frase + "tu frase — autor"
+codigo|Primero hazlo funcionar, luego hazlo bien, luego hazlo rápido.|Kent Beck
+codigo|El código se lee muchas más veces de las que se escribe.|Guido van Rossum
+codigo|Cualquier tonto escribe código que entiende una computadora. Los buenos programadores escriben código que entienden los humanos.|Martin Fowler
+codigo|Hablar es fácil. Enséñame el código.|Linus Torvalds
+codigo|La simplicidad es requisito para la confiabilidad.|Edsger Dijkstra
+codigo|No es un bug, es una feature sin documentar.|Anónimo
+codigo|Si funciona, no lo toques… pero sí escríbele un test.|Anónimo
+codigo|Borrar código también es programar.|Anónimo
+codigo|Hay dos cosas difíciles en programación: invalidar caché, nombrar cosas y los errores por uno.|Phil Karlton (más o menos)
+codigo|Optimizar antes de tiempo es la raíz de todos los males.|Donald Knuth
+codigo|Haz commits chiquitos y seguido; tu yo del futuro te lo va a agradecer.|ZeroFuann
+codigo|Lee el error completo antes de googlearlo.|ZeroFuann
+codigo|Un componente, una responsabilidad.|ZeroFuann
+codigo|Envía hoy algo pequeño en vez de algo perfecto nunca.|ZeroFuann
+codigo|TypeScript estricto hoy es un bug menos mañana.|ZeroFuann
+motiva|La disciplina le gana a la motivación.|Anónimo
+motiva|No tienes que ser grande para empezar, pero tienes que empezar para ser grande.|Zig Ziglar
+motiva|El éxito es la suma de pequeños esfuerzos repetidos día tras día.|Robert Collier
+motiva|Hecho es mejor que perfecto.|Sheryl Sandberg
+motiva|Cae siete veces, levántate ocho.|Proverbio japonés
+motiva|Lo que no se mide no se puede mejorar.|Peter Drucker
+motiva|Hoy pesas, mañana código, pasado el mundo.|ZeroFuann
+motiva|De 5 en 5 también se llega.|ZeroFuann
+motiva|Sin miedo al éxito.|Dicho mexicano
+motiva|El que es perico, donde quiera es verde.|Dicho mexicano
+motiva|Poco a poco se anda lejos.|Dicho mexicano
+mcu|Yo soy Iron Man.|Tony Stark
+mcu|Podría hacer esto todo el día.|Steve Rogers
+mcu|Un gran poder conlleva una gran responsabilidad.|Tío Ben
+mcu|Te amo tres mil.|Tony Stark y Morgan
+mcu|Vengadores… ¡reuníos!|Capitán América
+mcu|Siempre estoy enojado.|Bruce Banner
+mcu|Soy inevitable.|Thanos
+mcu|Wakanda por siempre.|T'Challa
+spidey|Cualquiera puede llevar la máscara.|Miles Morales
+manga|Me convertiré en el Rey de los Piratas.|Monkey D. Luffy
+manga|Esta vez voy a vivir sin arrepentimientos.|Rudeus Greyrat · Mushoku Tensei
+manga|Si no te rindes, todavía hay esperanza.|Anónimo · shōnen
+manga|El trabajo duro es inútil para quien no cree en sí mismo.|Naruto Uzumaki
+manga|Ve más allá. ¡Plus Ultra!|My Hero Academia
+manga|Nunca retrocedo a mi palabra. Ese es mi camino ninja.|Naruto Uzumaki
+rick|Wubba lubba dub dub.|Rick Sanchez
+rick|Me convertí en pepinillo, Morty.|Rick Sanchez
+barca|Més que un club.|FC Barcelona
+barca|Visca el Barça.|Culers
+barca|El balón no se cansa.|Johan Cruyff
+barca|Jugar al fútbol es muy simple, pero jugar simple es lo más difícil.|Johan Cruyff
+musica|Hasta que salga el sol… y luego a programar.|Fuerza Regida (más o menos)
+musica|Do I wanna know?|Arctic Monkeys
+musica|R U mine?|Arctic Monkeys
+musica|Gasolina para el código: reggaetón viejito.|ZeroFuann
+magia|La magia está en la práctica: mil veces el mismo pase.|Cartomagia
+magia|El mejor truco es hacer que lo difícil parezca fácil.|Cartomagia

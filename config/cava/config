@@ -1,0 +1,35 @@
+# cava en la terminal (idea #12 de "Mi terminal"). Tu widget de barras NO usa este archivo.
+[general]
+framerate = 60
+autosens = 1
+bar_width = 2
+bar_spacing = 1
+# barras más bajas cuando no hay música
+sleep_timer = 0
+
+[input]
+method = pulse
+source = auto
+
+[output]
+method = noncurses
+channels = stereo
+mono_option = average
+reverse = 0
+
+[color]
+# Carbon: gris oscuro abajo, blanco arriba
+gradient = 1
+gradient_color_1 = '#3a3a3e'
+gradient_color_2 = '#5a5a60'
+gradient_color_3 = '#8a8a90'
+gradient_color_4 = '#b8b8bc'
+gradient_color_5 = '#d0d0d4'
+gradient_color_6 = '#e2e2e6'
+gradient_color_7 = '#f0f0f2'
+gradient_color_8 = '#ffffff'
+
+[smoothing]
+monstercat = 1
+waves = 0
+noise_reduction = 77
