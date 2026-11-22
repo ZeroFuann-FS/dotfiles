@@ -1,0 +1,14 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.reloj",
+    "Name": "Reloj tarjeta",
+    "Description": "Fecha, hora grande y temperatura en una tarjeta",
+    "Icon": "clock",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Date and Time",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

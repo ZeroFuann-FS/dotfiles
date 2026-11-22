@@ -1,0 +1,16 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.sonido",
+    "Name": "Sonido",
+    "Description": "Volumen con animaciones: nivel en vivo, salidas y apps",
+    "Icon": "audio-volume-high-symbolic",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Multimedia",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-NotificationArea": "true",
+  "X-Plasma-NotificationAreaCategory": "Hardware"
+}

@@ -1,0 +1,14 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.esfera",
+    "Name": "Esfera",
+    "Description": "Esfera de puntos que flota y late con la música",
+    "Icon": "globe",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Multimedia",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

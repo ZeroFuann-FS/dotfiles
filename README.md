@@ -4,7 +4,7 @@
 
 # Terminal Carbon
 
-**Mi terminal en Fedora + KDE Plasma: kitty en escala de grises, herramientas modernas<br>y scripts propios en Python para trabajar y para lucirse.**
+**Mi terminal y mi escritorio en Fedora + KDE Plasma: kitty en escala de grises, herramientas modernas,<br>scripts propios en Python y 11 widgets de Plasma hechos a mano.**
 
 ![Fedora](https://img.shields.io/badge/Fedora-45-1e1e20?style=flat-square&logo=fedora&logoColor=e6e6e8)
 ![KDE Plasma](https://img.shields.io/badge/KDE_Plasma-6-1e1e20?style=flat-square&logo=kde&logoColor=e6e6e8)
@@ -12,7 +12,7 @@
 ![Python](https://img.shields.io/badge/Python-3-1e1e20?style=flat-square&logo=python&logoColor=e6e6e8)
 ![Licencia MIT](https://img.shields.io/badge/licencia-MIT-1e1e20?style=flat-square)
 
-[Instalar](#instalar) · [Para trabajar](#para-trabajar) · [Para lucirse](#para-lucirse) · [Personalizar](#personalizar) · [Estructura](#estructura)
+[Instalar](#instalar) · [Para trabajar](#para-trabajar) · [Para lucirse](#para-lucirse) · [Personalizar](#personalizar) · [Escritorio](#escritorio-kde-plasma) · [Estructura](#estructura)
 
 <br>
 
@@ -109,6 +109,40 @@ export MASCOTA="nombre"           # imagen que sale chiquita junto a la frase al
 
 <p align="center"><img src="img/frase.jpg" width="640" alt="Frase del día debajo de fastfetch"></p>
 
+## Escritorio (KDE Plasma)
+
+<p align="center"><img src="kde/img/escritorio-laptop.jpg" width="820" alt="Escritorio Carbon: barra flotante arriba, dock abajo y reloj grande"></p>
+
+Barra flotante arriba con lanzador, música, centro de control y bandeja; un dock abajo **en cada pantalla** (laptop y monitor) y todo en grises con el preset **Carbon** de Panel Colorizer.
+
+```bash
+cd dotfiles/kde
+./instalar-kde.sh            # widgets, fondo-pausa (Meta+P) y tema de Spotify
+./instalar-kde.sh --paneles  # además, mis paneles (respalda los tuyos antes)
+```
+
+### Widgets hechos a mano
+
+<table>
+<tr>
+<td width="33%"><img src="kde/img/estado-nuevo.jpg" alt="Widget Estado"><br><b>Estado</b> · el menú de la bandeja en mosaicos animados</td>
+<td width="33%"><img src="kde/img/sonido-nuevo.jpg" alt="Widget Sonido"><br><b>Sonido</b> · volumen con nivel en vivo, por app y salida</td>
+<td width="33%"><img src="kde/img/notificaciones-nuevo.jpg" alt="Widget Notificaciones"><br><b>Notificaciones</b> · historial y No molestar</td>
+</tr>
+</table>
+
+| Widget | Qué hace |
+|---|---|
+| **Wi-Fi** | Redes con su señal; conectar y desconectar sin salir del panel |
+| **Bluetooth** | Tus dispositivos emparejados con un toque |
+| **Sonido**, **Notificaciones**, **Estado** | Reemplazos de los de Plasma con otro diseño |
+| **Reloj**, **Clima**, **Música**, **Sistema** | Tarjetas para el escritorio: hora y temperatura, pronóstico de 4 días (Open-Meteo), reproductor y CPU/GPU/RAM |
+| **Barras** y **Esfera** | Visualizadores que bailan con la música (necesitan el relay de [plaintop](https://github.com/highscrren-dotcom/plaintop)) |
+
+`fondo-pausa` (Meta+P) pausa el fondo animado cuando hay ventanas encima: el uso de CPU de Plasma bajó de 47 % a 26 % de un núcleo.
+
+> Al final, `instalar-kde.sh` te dice qué widgets de la KDE Store faltan (Panel Colorizer, Andromeda Launcher, Plasma Flex Hub…). Los fondos animados son de Wallpaper Engine y no vienen en el repo.
+
 ## Estructura
 
 ```
@@ -118,12 +152,13 @@ dotfiles/
 ├── kitty/      kitty.conf, tema carbon.conf y la terminal desplegable
 ├── config/     starship, fastfetch, btop, lazygit, yazi, cava, spotify_player
 ├── share/      frases, sonido del látigo y lanzador de la terminal desplegable
+├── kde/        11 widgets de Plasma, paneles, fondo-pausa, tema de Spotify e instalar-kde.sh
 └── instalar.sh
 ```
 
 ## Créditos
 
-Ideas inspiradas en cmatrix, asciiquarium, tty-clock y en los "látigos para la terminal" (badclaude, OpenWhip). El código de `bin/` es propio. Los sprites de Pokémon los dibuja pokeget y no vienen en este repo.
+Ideas inspiradas en cmatrix, asciiquarium, tty-clock y en los "látigos para la terminal" (badclaude, OpenWhip). El código de `bin/` y los widgets de `kde/widgets/` son propios. Los sprites de Pokémon los dibuja pokeget y no vienen en este repo.
 
 <div align="center">
 

@@ -1,0 +1,20 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.redes",
+    "Name": "Wi-Fi",
+    "Description": "Wi-Fi minimalista: interruptor, red actual y lista limpia",
+    "Icon": "network-wireless-symbolic",
+    "Authors": [
+      {
+        "Name": "ZeroFuann"
+      }
+    ],
+    "Category": "Online Services",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-NotificationArea": "true",
+  "X-Plasma-NotificationAreaCategory": "Hardware"
+}

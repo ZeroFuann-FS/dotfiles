@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Activa o desactiva la pausa automática del fondo animado (Wallpaper Engine para KDE).
+#   fondo-pausa on      → se pausa cuando hay una ventana con foco o maximizada (ideal para jugar)
+#   fondo-pausa off     → nunca se pausa (siempre animado)
+#   fondo-pausa         → alterna entre on y off
+#   fondo-pausa estado  → muestra cómo está
+set -euo pipefail
+
+PLUGIN="com.github.catsout.wallpaperEngineKde"
+ON=4   # FocusOrMax
+OFF=0  # Never
+
+js() { qdbus-qt6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$1"; }
+
+estado() {
+  js "var ds=desktops(); var r=[]; for (var i=0;i<ds.length;i++){ if (ds[i].wallpaperPlugin!=='$PLUGIN') continue; ds[i].currentConfigGroup=['Wallpaper','$PLUGIN','General']; r.push(ds[i].readConfig('PauseMode',0)); } print(r.join(','));"
+}
+
+poner() {
+  js "var ds=desktops(); for (var i=0;i<ds.length;i++){ if (ds[i].wallpaperPlugin!=='$PLUGIN') continue; ds[i].currentConfigGroup=['Wallpaper','$PLUGIN','General']; ds[i].writeConfig('PauseMode',$1); ds[i].reloadConfig(); }" >/dev/null
+}
+
+aviso() { command -v notify-send >/dev/null && notify-send -a "Fondo" -i preferences-desktop-wallpaper "Fondo animado" "$1" || true; }
+
+actual=$(estado | cut -d, -f1)
+case "${1:-alternar}" in
+  on|activar)    poner $ON;  echo "Pausa automática ACTIVADA";    aviso "Se pausa cuando usas una ventana o juegas" ;;
+  off|desactivar) poner $OFF; echo "Pausa automática DESACTIVADA"; aviso "Siempre animado" ;;
+  estado)        [ "$actual" = "$ON" ] && echo "ACTIVADA (se pausa con ventanas)" || echo "DESACTIVADA (siempre animado)" ;;
+  alternar|toggle)
+    if [ "$actual" = "$ON" ]; then poner $OFF; echo "Pausa automática DESACTIVADA"; aviso "Siempre animado"
+    else poner $ON; echo "Pausa automática ACTIVADA"; aviso "Se pausa cuando usas una ventana o juegas"; fi ;;
+  *) echo "Uso: fondo-pausa [on|off|estado]"; exit 1 ;;
+esac

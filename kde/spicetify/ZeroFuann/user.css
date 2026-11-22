@@ -1,0 +1,69 @@
+/* Tema ZeroFuann: esquinas como las píldoras del panel (10 px) y acentos en blanco en lugar de verde */
+:root { --border-radius-1: 10px; }
+.main-nowPlayingBar-nowPlayingBar, .Root__now-playing-bar { border-top: 1px solid #2a2a2d; }
+.main-yourLibraryX-entryPoints, .Root__nav-bar > nav > div { border-radius: 10px; }
+/* Botón de reproducir: blanco con ícono negro */
+.main-playButton-PlayButton button, .encore-bright-accent-set { --background-base: #e6e6e8 !important; --background-highlight: #ffffff !important; --background-press: #cfcfd3 !important; }
+.main-playButton-PlayButton svg, .encore-bright-accent-set svg { fill: #111113 !important; }
+/* Barra de progreso y volumen en blanco */
+.playback-bar .progress-bar, .volume-bar .progress-bar { --fg-color: #e6e6e8 !important; --bg-color: #3a3a3f !important; }
+/* Íconos activos (aleatorio, repetir, me gusta) en blanco en vez de verde */
+.main-repeatButton-button[aria-checked="true"], .main-shuffleButton-button[aria-checked="true"], [data-encore-id="buttonTertiary"][aria-checked="true"] { color: #ffffff !important; }
+
+/* ───────── Animaciones ZeroFuann ───────── */
+
+/* Portadas que se elevan al pasar el mouse */
+.main-card-card, [data-encore-id="card"] {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms ease, background-color 220ms ease !important;
+}
+.main-card-card:hover, [data-encore-id="card"]:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.55);
+}
+
+/* Disco girando: la portada de abajo se vuelve redonda y gira mientras suena */
+@keyframes zf-girar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.main-nowPlayingWidget-coverArt, [data-testid="now-playing-widget"] [data-testid="cover-art-image"],
+[data-testid="now-playing-widget"] .cover-art {
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+[data-testid="now-playing-widget"] .cover-art,
+.main-nowPlayingWidget-coverArt .cover-art {
+  animation: zf-girar 9s linear infinite;
+  animation-play-state: paused;
+  box-shadow: 0 0 0 2px #2a2a2d, 0 0 0 6px #141416, 0 0 0 7px #3a3a3f;
+}
+.Root:has([data-testid="control-button-playpause"][aria-label="Pausar"]) [data-testid="now-playing-widget"] .cover-art,
+.Root:has([data-testid="control-button-playpause"][aria-label="Pause"]) [data-testid="now-playing-widget"] .cover-art {
+  animation-play-state: running;
+}
+
+/* Barra de progreso con brillo */
+.playback-bar .progress-bar { transition: height 160ms ease; }
+.playback-bar:hover .progress-bar {
+  --progress-bar-height: 6px !important;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.55));
+}
+
+/* Botón de reproducir: crece al pasar el mouse y late al darle play */
+@keyframes zf-pulso { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
+[data-testid="control-button-playpause"] { transition: transform 160ms ease !important; }
+[data-testid="control-button-playpause"]:hover { transform: scale(1.08); }
+[data-testid="control-button-playpause"]:active { animation: zf-pulso 300ms ease; }
+
+/* Entrada suave al cambiar de página */
+@keyframes zf-entrar { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.main-view-container__scroll-node-child > *, main > section { animation: zf-entrar 320ms ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* Disco: quitar el cuadro claro detrás de la portada */
+[data-testid="now-playing-widget"] [class*="cover"],
+[data-testid="now-playing-widget"] [class*="Cover"],
+[data-testid="now-playing-widget"] [data-testid="cover-art-image"] {
+  background: transparent !important;
+  border-radius: 50% !important;
+}

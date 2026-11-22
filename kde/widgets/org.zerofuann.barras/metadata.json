@@ -1,0 +1,14 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.barras",
+    "Name": "Barras de audio",
+    "Description": "Barras que cuelgan del borde y bailan con la música",
+    "Icon": "waveform-symbolic",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Multimedia",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

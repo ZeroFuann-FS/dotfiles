@@ -1,0 +1,23 @@
+[PlasmaViews][Panel 286]
+floating=1
+shell=org.kde.plasma.desktop
+
+[PlasmaViews][Panel 286][Defaults]
+thickness=50
+
+[PlasmaViews][Panel 330]
+floating=1
+panelLengthMode=1
+shell=org.kde.plasma.desktop
+
+[PlasmaViews][Panel 330][Defaults]
+thickness=60
+
+[PlasmaViews][Panel 437]
+floating=1
+panelLengthMode=1
+shell=org.kde.plasma.desktop
+
+[PlasmaViews][Panel 437][Defaults]
+thickness=60
+

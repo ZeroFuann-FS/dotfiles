@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Pausa del fondo animado
+Comment=Activa o desactiva la pausa automática del fondo animado
+Exec=fondo-pausa
+Icon=preferences-desktop-wallpaper
+NoDisplay=true

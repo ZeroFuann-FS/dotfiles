@@ -1,0 +1,14 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.clima",
+    "Name": "Clima tarjeta",
+    "Description": "Clima actual y próximos 4 días (Open-Meteo)",
+    "Icon": "weather-few-clouds",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Environment and Weather",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

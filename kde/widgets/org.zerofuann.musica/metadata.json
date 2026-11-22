@@ -1,0 +1,14 @@
+{
+  "KPlugin": {
+    "Id": "org.zerofuann.musica",
+    "Name": "Música tarjeta",
+    "Description": "Reproductor con portada, progreso y controles",
+    "Icon": "view-media-track",
+    "Authors": [{ "Name": "ZeroFuann" }],
+    "Category": "Multimedia",
+    "License": "GPL-2.0-or-later",
+    "Version": "1.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
