@@ -33,7 +33,8 @@ def sin_acentos(s):
 
 def nombre_bonito(ruta):
     base = os.path.splitext(os.path.basename(ruta))[0]
-    return " ".join(p.capitalize() for p in re.split(r"[-_ ]+", base) if p)
+    return " ".join(p if any(c.isupper() for c in p[1:]) else p.capitalize()   # «ZeroFuann» se queda así
+                    for p in re.split(r"[-_ ]+", base) if p)
 
 
 def imagenes():
