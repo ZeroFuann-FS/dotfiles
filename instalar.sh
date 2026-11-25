@@ -26,7 +26,7 @@ fi
 # export MASCOTA="nombre"              # imagen de ~/Imágenes/terminal que sale al abrir kitty
 EOF
 
-echo "→ kitty, starship, fastfetch, btop, lazygit, yazi, cava, spotify_player"
+echo "→ kitty, starship, fastfetch, btop, lazygit, yazi, cava"
 for f in kitty/*; do pon "$f" "$HOME/.config/kitty/$(basename "$f")"; done
 pon config/starship.toml "$HOME/.config/starship.toml"
 for f in config/fastfetch/*; do pon "$f" "$HOME/.config/fastfetch/$(basename "$f")"; done
@@ -35,7 +35,6 @@ pon config/btop/themes/carbon.theme "$HOME/.config/btop/themes/carbon.theme"
 pon config/lazygit/config.yml "$HOME/.config/lazygit/config.yml"
 for f in config/yazi/*; do pon "$f" "$HOME/.config/yazi/$(basename "$f")"; done
 pon config/cava/config "$HOME/.config/cava/config"
-for f in config/spotify-player/*; do pon "$f" "$HOME/.config/spotify-player/$(basename "$f")"; done
 
 echo "→ Frases, sonido del látigo y terminal desplegable"
 pon share/frases/frases.txt "$HOME/.local/share/frases/frases.txt"
@@ -55,7 +54,6 @@ if [ ${#falta[@]} -gt 0 ]; then
   echo "  sudo dnf install ${falta[*]}"
   echo "  (starship y lazygit pueden venir de COPR o de su página si dnf no los encuentra)"
 fi
-command -v spotify_player >/dev/null || echo "Opcional: spotify_player → https://github.com/aome510/spotify-player/releases"
 command -v pokeget >/dev/null       || echo "Opcional: pokeget        → https://github.com/talwat/pokeget-rs/releases"
 command -v asciiquarium >/dev/null  || echo "Opcional: sudo dnf install asciiquarium"
 python3 -c "import PIL" 2>/dev/null || echo "Para «personaje»: sudo dnf install python3-pillow"

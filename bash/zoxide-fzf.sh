@@ -83,5 +83,3 @@ fi
 # cava (idea #12): "ondas" = barras de tu música en gris (q para salir)
 command -v cava >/dev/null && alias ondas='cava'
 
-# spotify_player (idea #14): "musica" = Spotify en la terminal
-command -v spotify_player >/dev/null && alias musica='spotify_player'

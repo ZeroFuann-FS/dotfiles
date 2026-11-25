@@ -49,7 +49,6 @@ cd dotfiles
 | `Meta+Enter` | kitty que baja desde arriba de la pantalla |
 | `Ctrl+Shift+D` · `Ctrl+Shift+B` | dividir a la derecha o abajo; `Alt+flechas` para moverte |
 | *automático* | notificación de KDE cuando un comando de más de 15 s acaba y estás en otra ventana |
-| `musica` | Spotify en la terminal (spotify_player, necesita Premium) |
 | `clima` | pronóstico de wttr.in en ASCII pasado a grises · `clima hoy` · `clima corto` · `clima luna` |
 | `reloj` | hora gigante · `reloj crono` · `reloj 25m` temporizador con aviso y sonido |
 | `frase` | frase del día al abrir kitty · `frase otra` · `frase barca` · `frase + "tuya"` |
@@ -150,7 +149,7 @@ dotfiles/
 ├── bin/        scripts: apurale, lluvia, acuario, fuego, reloj, clima, frase, poke, personaje, zfetch
 ├── bash/       alias y funciones para ~/.bashrc.d
 ├── kitty/      kitty.conf, tema carbon.conf y la terminal desplegable
-├── config/     starship, fastfetch, btop, lazygit, yazi, cava, spotify_player
+├── config/     starship, fastfetch, btop, lazygit, yazi, cava
 ├── share/      frases, sonido del látigo y lanzador de la terminal desplegable
 ├── kde/        11 widgets de Plasma, paneles, fondo-pausa, tema de Spotify e instalar-kde.sh
 └── instalar.sh
