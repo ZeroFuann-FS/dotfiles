@@ -73,6 +73,13 @@ def pixeles(ruta, ancho, alto_max, modo):
     if bbox:
         img = img.crop(bbox)                             # recorta lo transparente de sobra
     w, h = img.size
+    if max(w, h) <= 64:                                  # ya es pixel art chiquito: múltiplos exactos, sin difuminar
+        esc = max(1, int(min(ancho / w, (alto_max * 2) / h)))
+        img = img.resize((w * esc, h * esc), Image.NEAREST)
+        if img.size[1] % 2:
+            fondo = Image.new("RGBA", (img.size[0], img.size[1] + 1), (0, 0, 0, 0))
+            fondo.paste(img, (0, 0)); img = fondo
+        return img
     esc = min(ancho / w, (alto_max * 2) / h)
     nw, nh = max(1, int(w * esc)), max(2, int(h * esc))
     nh += nh % 2

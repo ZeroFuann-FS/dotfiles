@@ -201,7 +201,7 @@ def main():
             extra = None
             if truena:                                         # grito arriba de la punta
                 fy = max(0, int(py // 4) - 3)
-                fx = max(0, min(COLS + 13 - len(grito), int(px // 2) - len(grito) // 2))
+                fx = max(0, min(COLS + 13 - len(grito), tcols - 3 - len(grito), int(px // 2) - len(grito) // 2))   # que no se salga en terminales angostas
                 extra = (fx, fy, grito)
             elif (t % CICLO) < 0.05:
                 grito = random.choice(GRITOS)
